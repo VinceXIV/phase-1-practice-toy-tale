@@ -24,6 +24,31 @@ document.addEventListener("DOMContentLoaded", () => {
       .append(createCard(item))
     }
   })
+
+
+  //Add a new toy
+  const addToyForm = document.querySelector('form.add-toy-form')
+  addToyForm.addEventListener('submit', event =>{
+    event.preventDefault()
+
+    fetch('http://localhost:3000/toys', {
+      method: 'POST',
+      headers: {
+        "Content-Type": 'application/json',
+        "Accept": "application/json"
+      },
+      body:JSON.stringify({
+        "name": addToyForm.querySelector('input[name = "name"]').value,
+        "image": addToyForm.querySelector('input[name = "image"]').value,
+        "likes": 0,
+      })
+    })
+    .then(result => result.json())
+    .then(item => {
+      document.getElementById('toy-collection')
+      .append(createCard(item))
+    })
+  })
 });
 
 
