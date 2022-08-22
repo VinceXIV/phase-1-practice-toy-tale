@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .append(createCard(item))
     })
   })
+
 });
 
 
@@ -60,5 +61,36 @@ function createCard(item){
   <p>${item.likes} Likes</p>
   <button class="like-btn" id="${item.id}">Like ❤️</button>`
 
+
+  //Increase a Toy's Likes
+  const likeBtn = itemCard.querySelector('.like-btn')
+  likeBtn.addEventListener('click', updateCard)
+
   return itemCard
+}
+
+
+function updateCard(item){
+  const imgUrl = item.target.parentNode.querySelector('img').src
+  const imgName = item.target.parentNode.querySelector('h2').textContent
+  const imgId = item.target.parentNode.querySelector('button.like-btn').id
+  const noOfLikes = parseInt(item.target.parentNode.querySelector('p').textContent[0]) + 1
+
+  console.log(imgName)
+  fetch(`${imgUrl}/${imgId}`, {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      "name": imgName,
+      "image": imgUrl,
+      "likes": noOfLikes
+    })
+  })
+  .then(result => result.json())
+  .then(data => {
+    item.target.parentNode.querySelector('p').textContent = `${noOfLikes} ${item.target.parentNode.querySelector('p').textContent.splice(1)}`
+  })
 }
