@@ -20,8 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
   .then(result => result.json())
   .then(data => {
     for(item of data){
-      document.getElementById('toy-collection')
-      .append(createCard(item))
+      const itemCard = createCard(item)
+
+      document.getElementById('toy-collection').append(itemCard)
+      handleLikeButton(itemCard)
     }
   })
 
@@ -45,8 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(result => result.json())
     .then(item => {
-      document.getElementById('toy-collection')
-      .append(createCard(item))
+      const itemCard = createCard(item)
+
+      document.getElementById('toy-collection').append(itemCard)
+      handleLikeButton(itemCard)
     })
   })
 
@@ -61,36 +65,32 @@ function createCard(item){
   <p>${item.likes} Likes</p>
   <button class="like-btn" id="${item.id}">Like ❤️</button>`
 
-
-  //Increase a Toy's Likes
-  const likeBtn = itemCard.querySelector('.like-btn')
-  likeBtn.addEventListener('click', updateCard)
-
   return itemCard
 }
 
 
-function updateCard(item){
-  const imgUrl = item.target.parentNode.querySelector('img').src
-  const imgName = item.target.parentNode.querySelector('h2').textContent
-  const imgId = item.target.parentNode.querySelector('button.like-btn').id
-  const noOfLikes = parseInt(item.target.parentNode.querySelector('p').textContent[0]) + 1
+function handleLikeButton(itemCard){
+  const likeButton = itemCard.querySelector('.like-btn')
 
-  console.log(imgName)
-  fetch(`${imgUrl}/${imgId}`, {
-    method: 'PATCH',
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify({
-      "name": imgName,
-      "image": imgUrl,
-      "likes": noOfLikes
+  likeButton.addEventListener('click', e=>{
+    const currentNoOfLikes = parseInt(likeButton.parentNode.querySelector('p').textContent.split(' ')[0])
+    const updatedNoOfLikes = currentNoOfLikes + 1
+
+    fetch(`http://localhost:3000/toys/${likeButton.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          "likes": updatedNoOfLikes
+        }
+      )
     })
-  })
-  .then(result => result.json())
-  .then(data => {
-    item.target.parentNode.querySelector('p').textContent = `${noOfLikes} ${item.target.parentNode.querySelector('p').textContent.splice(1)}`
+    .then(result => result.json())
+    .then(data => {
+      likeButton.parentNode.querySelector('p').textContent = `${data.likes} likes`
+    })
   })
 }
